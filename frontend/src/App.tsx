@@ -178,6 +178,7 @@ export default function App() {
   }, []);
 
   const refreshData = useCallback(async (silent = false) => {
+    const startedAt = window.performance.now();
     if (!silent) setRefreshing(true);
     try {
       const next = await api.bootstrap();
@@ -196,6 +197,14 @@ export default function App() {
       }
       return false;
     } finally {
+      if (!silent) {
+        const elapsed = window.performance.now() - startedAt;
+        if (elapsed < 650) {
+          await new Promise((resolve) =>
+            window.setTimeout(resolve, 650 - elapsed)
+          );
+        }
+      }
       setLoading(false);
       setRefreshing(false);
     }
@@ -247,7 +256,7 @@ export default function App() {
     () =>
       [...filterScooters(data.scooters, search, statusFilter)].sort(
         (first, second) =>
-          first.number.localeCompare(second.number, "ru", {
+          second.number.localeCompare(first.number, "ru", {
             numeric: true,
             sensitivity: "base"
           })
