@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: scooter-rental-crm
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm --workspace backend start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@samo.local
+      - key: ADMIN_PASSWORD
+        sync: false

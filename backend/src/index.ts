@@ -2,9 +2,11 @@ import { ensureDemoAdmin } from "./auth.js";
 import { app } from "./app.js";
 import { config } from "./config.js";
 import { pool } from "./db.js";
+import { runMigrations } from "./migrations.js";
 
 async function start() {
   await pool.query("SELECT 1");
+  await runMigrations();
   await ensureDemoAdmin();
 
   const server = app.listen(config.PORT, "0.0.0.0", () => {

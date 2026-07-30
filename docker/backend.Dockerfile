@@ -19,6 +19,7 @@ COPY backend/package.json backend/package.json
 RUN npm ci --omit=dev --workspace backend
 
 COPY --from=build /app/backend/dist backend/dist
+COPY backend/migrations backend/migrations
 
 USER node
 EXPOSE 4000

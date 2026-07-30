@@ -8,6 +8,7 @@ import express, {
   type Response
 } from "express";
 import helmet from "helmet";
+import { fileURLToPath } from "node:url";
 import { ZodError } from "zod";
 import {
   clearAuthCookie,
@@ -33,10 +34,31 @@ import {
 export const app = express();
 
 app.disable("x-powered-by");
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https://*.tile.openstreetmap.org"
+        ],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"]
+      }
+    }
+  })
+);
 app.use(
   cors({
-    origin: config.FRONTEND_ORIGIN,
+    origin:
+      config.NODE_ENV === "production" ? false : config.FRONTEND_ORIGIN,
     credentials: true
   })
 );
@@ -325,6 +347,21 @@ app.post("/api/rentals/:id/complete", async (request, response, next) => {
     next(error);
   }
 });
+
+if (config.NODE_ENV === "production") {
+  const frontendDirectory = fileURLToPath(
+    new URL("../../frontend/dist", import.meta.url)
+  );
+
+  app.use(express.static(frontendDirectory));
+  app.use((request, response, next) => {
+    if (request.method === "GET" && !request.path.startsWith("/api")) {
+      response.sendFile("index.html", { root: frontendDirectory });
+      return;
+    }
+    next();
+  });
+}
 
 app.use((_request, _response, next) => {
   next(new AppError(404, "Маршрут не найден", "NOT_FOUND"));
