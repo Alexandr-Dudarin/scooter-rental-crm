@@ -400,12 +400,16 @@ select:focus-visible {
 }
 
 .metric-card__icon {
-  display: grid;
+  display: grid !important;
   width: 54px;
   height: 54px;
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
+}
+
+.metric-card__icon svg {
+  display: block;
 }
 
 .metric-card__icon--emerald {

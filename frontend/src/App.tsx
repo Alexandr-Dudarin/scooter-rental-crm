@@ -48,6 +48,27 @@ import type {
 type Section = "overview" | "scooters" | "rentals";
 type RentalTab = "active" | "completed";
 type ToastState = { type: "success" | "error"; message: string } | null;
+type ScooterFormDraft = Omit<
+  ScooterInput,
+  "batteryLevel" | "latitude" | "longitude"
+> & {
+  batteryLevel: string;
+  latitude: string;
+  longitude: string;
+};
+
+const sectionPaths: Record<Section, string> = {
+  overview: "/overview",
+  scooters: "/scooters",
+  rentals: "/rentals"
+};
+
+function sectionFromPath(pathname: string): Section {
+  const match = Object.entries(sectionPaths).find(
+    ([, path]) => path === pathname
+  );
+  return (match?.[0] as Section | undefined) ?? "overview";
+}
 
 const emptyAnalytics: Analytics = {
   totalScooters: 0,
@@ -127,7 +148,9 @@ function getInitials(name: string) {
 }
 
 export default function App() {
-  const [section, setSection] = useState<Section>("overview");
+  const [section, setSection] = useState<Section>(() =>
+    sectionFromPath(window.location.pathname)
+  );
   const [data, setData] = useState<BootstrapData>({
     scooters: [],
     rentals: [],
@@ -160,6 +183,7 @@ export default function App() {
       const next = await api.bootstrap();
       setData(next);
       setError(null);
+      return true;
     } catch (requestError) {
       if (requestError instanceof ApiError && requestError.status === 401) {
         setUser(null);
@@ -170,10 +194,29 @@ export default function App() {
             : "Не удалось загрузить данные"
         );
       }
+      return false;
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
+  }, []);
+
+  const navigateToSection = useCallback((nextSection: Section) => {
+    if (window.location.pathname !== sectionPaths[nextSection]) {
+      window.history.pushState(null, "", sectionPaths[nextSection]);
+    }
+    setSection(nextSection);
+    setMobileNavOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.pathname === "/") {
+      window.history.replaceState(null, "", sectionPaths.overview);
+    }
+    const handlePopState = () =>
+      setSection(sectionFromPath(window.location.pathname));
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   useEffect(() => {
@@ -201,7 +244,14 @@ export default function App() {
   }, [refreshData, user]);
 
   const filteredScooters = useMemo(
-    () => filterScooters(data.scooters, search, statusFilter),
+    () =>
+      [...filterScooters(data.scooters, search, statusFilter)].sort(
+        (first, second) =>
+          first.number.localeCompare(second.number, "ru", {
+            numeric: true,
+            sensitivity: "base"
+          })
+      ),
     [data.scooters, search, statusFilter]
   );
 
@@ -273,28 +323,19 @@ export default function App() {
             active={section === "overview"}
             icon={<LayoutDashboard size={20} />}
             label="Обзор"
-            onClick={() => {
-              setSection("overview");
-              setMobileNavOpen(false);
-            }}
+            onClick={() => navigateToSection("overview")}
           />
           <NavButton
             active={section === "scooters"}
             icon={<Bike size={21} />}
             label="Самокаты"
-            onClick={() => {
-              setSection("scooters");
-              setMobileNavOpen(false);
-            }}
+            onClick={() => navigateToSection("scooters")}
           />
           <NavButton
             active={section === "rentals"}
             icon={<CalendarClock size={20} />}
             label="Аренды"
-            onClick={() => {
-              setSection("rentals");
-              setMobileNavOpen(false);
-            }}
+            onClick={() => navigateToSection("rentals")}
           />
         </nav>
 
@@ -350,7 +391,15 @@ export default function App() {
             <button
               className="icon-button icon-button--bordered"
               type="button"
-              onClick={() => void refreshData()}
+              disabled={refreshing}
+              onClick={async () => {
+                if (await refreshData()) {
+                  showToast({
+                    type: "success",
+                    message: "Данные обновлены"
+                  });
+                }
+              }}
               aria-label="Обновить данные"
               title="Обновить данные"
             >
@@ -395,7 +444,7 @@ export default function App() {
         {section === "overview" && (
           <Overview
             data={data}
-            onShowScooters={() => setSection("scooters")}
+            onShowScooters={() => navigateToSection("scooters")}
           />
         )}
 
@@ -963,22 +1012,27 @@ function ScooterFormModal({
   onSubmit: (input: ScooterInput) => Promise<void>;
 }) {
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState<ScooterInput>({
+  const [form, setForm] = useState<ScooterFormDraft>({
     number: scooter?.number ?? "",
     model: scooter?.model ?? "",
     status:
       scooter?.status === "in_use"
         ? "available"
         : scooter?.status ?? "available",
-    batteryLevel: scooter?.batteryLevel ?? 100,
-    latitude: scooter?.latitude ?? 55.751244,
-    longitude: scooter?.longitude ?? 37.618423
+    batteryLevel: String(scooter?.batteryLevel ?? 100),
+    latitude: String(scooter?.latitude ?? 55.751244),
+    longitude: String(scooter?.longitude ?? 37.618423)
   });
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setSubmitting(true);
-    await onSubmit(form);
+    await onSubmit({
+      ...form,
+      batteryLevel: Number(form.batteryLevel),
+      latitude: Number(form.latitude),
+      longitude: Number(form.longitude)
+    });
     setSubmitting(false);
   }
 
@@ -1046,7 +1100,7 @@ function ScooterFormModal({
             max={100}
             value={form.batteryLevel}
             onChange={(event) =>
-              setForm({ ...form, batteryLevel: Number(event.target.value) })
+              setForm({ ...form, batteryLevel: event.target.value })
             }
           />
         </label>
@@ -1060,7 +1114,7 @@ function ScooterFormModal({
             step="0.000001"
             value={form.latitude}
             onChange={(event) =>
-              setForm({ ...form, latitude: Number(event.target.value) })
+              setForm({ ...form, latitude: event.target.value })
             }
           />
         </label>
@@ -1074,7 +1128,7 @@ function ScooterFormModal({
             step="0.000001"
             value={form.longitude}
             onChange={(event) =>
-              setForm({ ...form, longitude: Number(event.target.value) })
+              setForm({ ...form, longitude: event.target.value })
             }
           />
         </label>

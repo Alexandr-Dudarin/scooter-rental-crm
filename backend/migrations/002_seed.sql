@@ -18,10 +18,10 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO rentals
   (id, scooter_id, user_name, user_phone, started_at, ended_at, status)
 VALUES
-  ('ab8baf81-7fe4-436c-97ce-f8f2ee900201', '3dbf1c49-0ae8-45ee-876c-020a1f893102', 'Анна Смирнова', '+7 999 123-45-67', NOW() - INTERVAL '28 minutes', NULL, 'active'),
-  ('ab8baf81-7fe4-436c-97ce-f8f2ee900202', '3dbf1c49-0ae8-45ee-876c-020a1f893106', 'Илья Волков', '+7 916 440-28-11', NOW() - INTERVAL '17 minutes', NULL, 'active'),
-  ('ab8baf81-7fe4-436c-97ce-f8f2ee900203', '3dbf1c49-0ae8-45ee-876c-020a1f893110', 'Мария Орлова', '+7 903 512-09-88', NOW() - INTERVAL '41 minutes', NULL, 'active'),
-  ('ab8baf81-7fe4-436c-97ce-f8f2ee900204', '3dbf1c49-0ae8-45ee-876c-020a1f893105', 'Павел Новиков', '+7 985 774-31-02', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '2 hours 24 minutes', 'completed'),
-  ('ab8baf81-7fe4-436c-97ce-f8f2ee900205', '3dbf1c49-0ae8-45ee-876c-020a1f893107', 'Елена Белова', '+7 926 330-17-55', NOW() - INTERVAL '1 day 2 hours', NOW() - INTERVAL '1 day 1 hour 18 minutes', 'completed'),
-  ('ab8baf81-7fe4-436c-97ce-f8f2ee900206', '3dbf1c49-0ae8-45ee-876c-020a1f893109', 'Максим Кузнецов', '+7 901 884-20-14', NOW() - INTERVAL '2 days 4 hours', NOW() - INTERVAL '2 days 3 hours 12 minutes', 'completed')
+  ('ab8baf81-7fe4-436c-97ce-f8f2ee900201', '3dbf1c49-0ae8-45ee-876c-020a1f893102', 'Иван Болтенко', '+7 999 418-32-71', NOW() - INTERVAL '28 minutes', NULL, 'active'),
+  ('ab8baf81-7fe4-436c-97ce-f8f2ee900202', '3dbf1c49-0ae8-45ee-876c-020a1f893106', 'Анастасия Болтенко', '+7 916 572-48-30', NOW() - INTERVAL '17 minutes', NULL, 'active'),
+  ('ab8baf81-7fe4-436c-97ce-f8f2ee900203', '3dbf1c49-0ae8-45ee-876c-020a1f893110', 'Фёдор Слуцкий', '+7 903 641-27-95', NOW() - INTERVAL '41 minutes', NULL, 'active'),
+  ('ab8baf81-7fe4-436c-97ce-f8f2ee900204', '3dbf1c49-0ae8-45ee-876c-020a1f893105', 'Елизавета Марценюк', '+7 985 263-79-14', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '2 hours 24 minutes', 'completed'),
+  ('ab8baf81-7fe4-436c-97ce-f8f2ee900205', '3dbf1c49-0ae8-45ee-876c-020a1f893107', 'Антон Зорин', '+7 926 704-36-82', NOW() - INTERVAL '1 day 2 hours', NOW() - INTERVAL '1 day 1 hour 18 minutes', 'completed'),
+  ('ab8baf81-7fe4-436c-97ce-f8f2ee900206', '3dbf1c49-0ae8-45ee-876c-020a1f893109', 'Ангелина Трегубова', '+7 901 835-42-67', NOW() - INTERVAL '2 days 4 hours', NOW() - INTERVAL '2 days 3 hours 12 minutes', 'completed')
 ON CONFLICT (id) DO NOTHING;
