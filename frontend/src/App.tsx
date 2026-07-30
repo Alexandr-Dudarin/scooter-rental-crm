@@ -6,7 +6,6 @@ import {
   Bike,
   CalendarClock,
   Check,
-  ChevronDown,
   CircleAlert,
   Gauge,
   LayoutDashboard,
@@ -32,6 +31,10 @@ import {
   useState
 } from "react";
 import { api, ApiError } from "./api";
+import {
+  CustomSelect,
+  type CustomSelectOption
+} from "./components/CustomSelect/CustomSelect";
 import { filterScooters } from "./domain";
 import FleetMap from "./FleetMap";
 import type {
@@ -95,6 +98,32 @@ const statusMeta: Record<
   },
   offline: { label: "Офлайн", shortLabel: "Офлайн", icon: Zap }
 };
+
+const scooterStatusOptions: CustomSelectOption[] = [
+  {
+    value: "available",
+    label: "Доступен",
+    description: "Готов к новой аренде"
+  },
+  {
+    value: "maintenance",
+    label: "Обслуживание",
+    description: "На диагностике или ремонте"
+  },
+  {
+    value: "offline",
+    label: "Офлайн",
+    description: "Временно недоступен"
+  }
+];
+
+const scooterStatusFilterOptions: CustomSelectOption[] = [
+  { value: "all", label: "Все статусы" },
+  { value: "available", label: "Доступен" },
+  { value: "in_use", label: "В аренде" },
+  { value: "maintenance", label: "Обслуживание" },
+  { value: "offline", label: "Офлайн" }
+];
 
 const sectionTitles: Record<Section, { title: string; subtitle: string }> = {
   overview: {
@@ -766,22 +795,17 @@ function ScootersSection({
               aria-label="Поиск самокатов"
             />
           </label>
-          <label className="select-field">
-            <select
-              value={statusFilter}
-              onChange={(event) =>
-                onStatusFilter(event.target.value as "all" | ScooterStatus)
-              }
-              aria-label="Фильтр по статусу"
-            >
-              <option value="all">Все статусы</option>
-              <option value="available">Доступен</option>
-              <option value="in_use">В аренде</option>
-              <option value="maintenance">Обслуживание</option>
-              <option value="offline">Офлайн</option>
-            </select>
-            <ChevronDown size={16} />
-          </label>
+          <CustomSelect
+            value={statusFilter}
+            options={scooterStatusFilterOptions}
+            onChange={(value) =>
+              onStatusFilter(value as "all" | ScooterStatus)
+            }
+            ariaLabel="Фильтр по статусу"
+            layout="filter"
+            dropdownAlign="end"
+            dropdownWidth="trigger"
+          />
         </div>
       </div>
       <ScooterTable
@@ -1077,29 +1101,37 @@ function ScooterFormModal({
             placeholder="Ninebot Max G30"
           />
         </label>
-        <label>
+        <div className="form-field">
           <span>Статус</span>
-          <select
+          <CustomSelect
             value={scooter?.status === "in_use" ? "in_use" : form.status}
             disabled={scooter?.status === "in_use"}
-            onChange={(event) =>
+            options={
+              scooter?.status === "in_use"
+                ? [
+                    {
+                      value: "in_use",
+                      label: "В аренде",
+                      description: "Изменится после завершения аренды"
+                    },
+                    ...scooterStatusOptions
+                  ]
+                : scooterStatusOptions
+            }
+            onChange={(value) =>
               setForm({
                 ...form,
-                status: event.target.value as ScooterInput["status"]
+                status: value as ScooterInput["status"]
               })
             }
-          >
-            {scooter?.status === "in_use" && (
-              <option value="in_use">В аренде</option>
-            )}
-            <option value="available">Доступен</option>
-            <option value="maintenance">Обслуживание</option>
-            <option value="offline">Офлайн</option>
-          </select>
+            ariaLabel="Статус самоката"
+            layout="form"
+            dropdownWidth="trigger"
+          />
           {scooter?.status === "in_use" && (
             <small>Статус изменится после завершения аренды.</small>
           )}
-        </label>
+        </div>
         <label>
           <span>Уровень заряда, %</span>
           <input
@@ -1184,22 +1216,23 @@ function RentalFormModal({
       onClose={onClose}
     >
       <form className="form-grid form-grid--single" onSubmit={submit}>
-        <label>
+        <div className="form-field">
           <span>Самокат</span>
-          <select
-            required
+          <CustomSelect
             value={form.scooterId}
-            onChange={(event) =>
-              setForm({ ...form, scooterId: event.target.value })
+            options={scooters.map((scooter) => ({
+              value: scooter.id,
+              label: `${scooter.number} · ${scooter.model}`,
+              description: `Заряд ${scooter.batteryLevel}%`
+            }))}
+            onChange={(value) =>
+              setForm({ ...form, scooterId: value })
             }
-          >
-            {scooters.map((scooter) => (
-              <option value={scooter.id} key={scooter.id}>
-                {scooter.number} · {scooter.model} · {scooter.batteryLevel}%
-              </option>
-            ))}
-          </select>
-        </label>
+            ariaLabel="Выберите самокат"
+            layout="full"
+            dropdownWidth="trigger"
+          />
+        </div>
         <label>
           <span>Имя пользователя</span>
           <input

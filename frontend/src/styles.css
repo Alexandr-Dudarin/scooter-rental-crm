@@ -33,6 +33,30 @@
 
 * {
   box-sizing: border-box;
+  scrollbar-color: rgba(15, 159, 118, 0.32) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  min-height: 36px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(15, 159, 118, 0.32);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 159, 118, 0.52);
+  background-clip: padding-box;
 }
 
 html {
@@ -815,8 +839,7 @@ tr:hover .row-actions {
   gap: 10px;
 }
 
-.search-field,
-.select-field {
+.search-field {
   display: flex;
   height: 40px;
   align-items: center;
@@ -843,27 +866,6 @@ tr:hover .row-actions {
 
 .search-field input::placeholder {
   color: var(--muted-light);
-}
-
-.select-field {
-  position: relative;
-}
-
-.select-field select {
-  height: 100%;
-  appearance: none;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  padding: 0 34px 0 12px;
-  color: var(--navy-soft);
-  font-size: 12px;
-}
-
-.select-field svg {
-  position: absolute;
-  right: 10px;
-  pointer-events: none;
 }
 
 .count-badge {
@@ -1056,6 +1058,7 @@ tr:hover .row-actions {
 }
 
 .form-grid label,
+.form-grid .form-field,
 .login-form label {
   display: grid;
   gap: 7px;
@@ -1088,7 +1091,8 @@ tr:hover .row-actions {
   box-shadow: 0 0 0 3px rgba(15, 159, 118, 0.1);
 }
 
-.form-grid label small {
+.form-grid label small,
+.form-grid .form-field small {
   color: var(--muted);
   font-size: 10px;
   font-weight: 500;
