@@ -18,13 +18,13 @@ Twitter Cards.
 |---|---|
 | Frontend | React 19, Vite, TypeScript |
 | Backend | Node.js 22, Express 5, TypeScript |
-| База данных | PostgreSQL 16 |
+| База данных | PostgreSQL 16 (Docker), Neon PostgreSQL 18 (production) |
 | API | REST |
 | Аутентификация | JWT в защищённой `httpOnly` cookie |
 | Карта | Leaflet |
 | Валидация | Zod на backend + ограничения PostgreSQL |
 | Тестирование | Vitest, Testing Library |
-| Инфраструктура | Docker Compose, Nginx |
+| Инфраструктура | Docker Compose, Nginx; Render + Neon для публичного демо |
 
 ## Что реализовано
 
@@ -68,6 +68,20 @@ Twitter Cards.
 | Аутентификация | Защищённая сессия администратора через JWT-cookie |
 | Docker | PostgreSQL, API и Nginx/frontend запускаются одной командой |
 | Валидация и ошибки | Zod, ограничения БД и единый JSON-формат ошибок API |
+
+## Публичная демо-версия
+
+- Приложение: https://scooter-rental-crm.onrender.com
+- Health check API: https://scooter-rental-crm.onrender.com/api/health
+
+Демонстрационная учётная запись:
+
+```text
+Email: admin@samo.local
+Пароль: Demo333!
+```
+
+Демо размещено на бесплатном экземпляре Render. После периода бездействия первый запрос обычно запускает сервис примерно за минуту, иногда дольше; последующие запросы выполняются в обычном режиме.
 
 ## Быстрый запуск через Docker
 
