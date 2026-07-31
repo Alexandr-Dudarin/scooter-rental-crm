@@ -14,6 +14,12 @@
     "dev:backend": "npm --workspace backend run dev",
     "build": "npm --workspace frontend run build && npm --workspace backend run build",
     "test": "npm --workspace frontend test && npm --workspace backend test",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
     "typecheck": "npm --workspace frontend run build && npm --workspace backend run typecheck"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
   }
 }
