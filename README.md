@@ -140,11 +140,16 @@ Vite проксирует `/api` на `http://localhost:4000`.
 
 ```text
 frontend/                 React + Vite + TypeScript
-  src/App.tsx             экраны и пользовательские сценарии
+  src/App.tsx             композиция экранов, загрузка данных и сценарии
+  src/app/                навигация, общие состояния и константы приложения
+  src/features/           модули auth, overview, scooters и rentals
+  src/components/layout/  каркас CRM: боковая навигация и верхняя панель
+  src/components/ui/      общие Modal, ConfirmModal, EmptyState и loader
+  src/components/         переиспользуемый CustomSelect
+  src/shared/             форматирование дат, времени и общие функции
   src/api.ts              типизированный HTTP-клиент
   src/FleetMap.tsx        Leaflet-карта
   src/domain.ts           чистая логика фильтрации
-  src/components/         переиспользуемые UI-компоненты
 
 backend/                  Node.js + Express + TypeScript
   src/app.ts              REST-маршруты и обработка ошибок
@@ -156,8 +161,11 @@ docker/                   production-сборки frontend/backend и Nginx
 docker-compose.yml        PostgreSQL + API + frontend
 ```
 
-Frontend и backend разделены и общаются только через REST. Контроллеры не
-содержат SQL бизнес-переходов аренды: они вынесены в сервисный слой.
+Frontend и backend разделены и общаются только через REST. Frontend организован
+по функциональным модулям: `App.tsx` отвечает за композицию и координацию,
+а экраны, формы, layout и общие UI-компоненты находятся в отдельных файлах.
+Контроллеры backend не содержат SQL бизнес-переходов аренды: они вынесены в
+сервисный слой.
 
 ## Переиспользуемый UI-компонент
 
